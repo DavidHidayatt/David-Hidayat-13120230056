@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', 'sans-serif';
+            box-sizing: border-box;
+        }
+        .wrapper{
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calculator {
+            background: #3a4452;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .calculator-screen {
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            font-size: 20px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color:  rgb(109, 138, 136);
+            color: #010000;
+            border: none;
+        }
+
+        .operator{
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: rgb(113, 217, 34);
+            color: #000000;
+            border: none;
+        }
+
+        .invers{
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color:  rgb(113, 217, 34);
+            color: #000000;
+            border: none;
+        }
+
+        .button:hover {
+            background-color:  rgb(113, 217, 34);
+        }
+
+        .equals {
+            grid-column: span 2;
+            background-color:  rgb(113, 217, 34);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="calculator">
+        <input type="text" class="calculator-screen" value="" placeholder="0">
+        <div class="calculator-buttons">
+            <table>
+                <tr>
+                    <input type="button" class="button" onclick="inputDigit('7')" value="7">
+                    <input type="button" class="button" onclick="inputDigit('8')" value="8">
+                    <input type="button" class="button" onclick="inputDigit('9')" value="9">
+                    <input type="button" class="button invers" value="+/-" onclick="inversNumber()">
+                </tr>
+                <tr>
+                    <input type="button" class="button" onclick="inputDigit('4')" value="4">
+                    <input type="button" class="button" onclick="inputDigit('5')" value="5">
+                    <input type="button" class="button" onclick="inputDigit('6')" value="6">
+                    <input type="button" class="button operator" value="-" onclick="handleOperator('-')">
+                </tr>
+                <tr>
+                    <input type="button" class="button" onclick="inputDigit('1')" value="1">
+                    <input type="button" class="button" onclick="inputDigit('2')" value="2">
+                    <input type="button" class="button" onclick="inputDigit('3')" value="3">
+                    <input type="button" class="button operator" value="+" onclick="handleOperator('+')">
+                </tr>
+                <tr>
+                    <input type="button" class="button clear" value="CE" onclick="clearDisplay()">
+                    <input type="button" class="button" onclick="inputDigit('0')" value="0">
+                    <input type="button" class="button equals" onclick="equalsNumber()" value="=">
+                </tr>
+            </table>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        const calculator = {
+            displayNumber: "0",
+            operator: null,
+            firstNumber: null,
+            waitingForSecondNumber: false
+        };
+
+        const updateDisplay = () => {
+            document.querySelector('.calculator-screen').value = calculator.displayNumber;
+        };
+
+        const clearDisplay = () => {
+            calculator.displayNumber = "0";
+            calculator.operator = null;
+            calculator.firstNumber = null;
+            calculator.waitingForSecondNumber = false;
+            updateDisplay();
+        };
+
+        const inputDigit = (digit) => {
+            if (calculator.displayNumber === "0" || calculator.waitingForSecondNumber) {
+                calculator.displayNumber = digit;
+                calculator.waitingForSecondNumber = false;
+            } else {
+                calculator.displayNumber += digit;
+            }
+            updateDisplay();
+        };
+
+        const inversNumber = () => {
+            if (calculator.displayNumber === "0") {
+                return;
+            }
+            calculator.displayNumber = calculator.displayNumber * -1;
+            updateDisplay();
+        };
+
+        const equalsNumber = () => {
+            if (calculator.firstNumber == null || calculator.operator == null) {
+                alert("Anda belum menetapkan operator");
+                return;
+            }
+            
+            let result = 0;
+            const firstNum = parseFloat(calculator.firstNumber);
+            const secondNumber = parseFloat(calculator.displayNumber);
+            switch (calculator.operator) {
+                case "+":
+                    result = firstNum + secondNumber;
+                    break;
+                case "-":
+                    result = firstNum - secondNumber;
+                    break;
+                default:
+                    break;
+            }
+
+            calculator.displayNumber = result.toString();
+            calculator.firstNumber = null;
+            calculator.operator = null;
+            calculator.waitingForSecondNumber = false;
+            updateDisplay();
+        };
+
+        const handleOperator = (operator) => {
+        if (!calculator.waitingForSecondNumber) {
+          calculator.operator = operator;
+          calculator.waitingForSecondNumber = true;
+          calculator.firstNumber = calculator.displayNumber;
+          calculator.displayNumber = "0";
+        } else {
+          alert("Sudah menetapkan operator");
+        }
+      };
+
+
+      const buttons = document.querySelectorAll(".buttons button");
+      for (const button of buttons) {
+        button.addEventListener("click", function (event) {
+          const target = event.target;
+
+          if (target.classList.contains("clear")) {
+            clearDisplay();
+            return;
+          }
+
+          if (target.classList.contains("invers")) {
+            inversNumber();
+            return;
+          }
+
+          if (target.classList.contains("operator")) {
+            handleOperator(target.innerText);
+            return;
+          }
+
+          if (target.classList.contains("equals")) {
+            equalsNumber();
+            return;
+          }
+
+          inputDigit(target.innerText);
+        });
+      }
+    </script>
+</body>
+</html>
